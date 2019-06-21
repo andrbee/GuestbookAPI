@@ -10,11 +10,12 @@ namespace App\Exceptions;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 trait ExceptionTrait
 {
-    public function apiException($e)
+    public function apiException($request,$e)
     {
         if ($this->isModel($e)) {
             return $this->ModelResponse();
@@ -22,6 +23,11 @@ trait ExceptionTrait
         if ($this->isHttp($e)) {
             return $this->HttpResponse();
         }
+        if ($this->isAuth($e)) {
+            return $this->AuthResponse();
+        }
+
+        return parent::render($request, $e);
     }
 
     protected function isModel($e)
@@ -32,6 +38,11 @@ trait ExceptionTrait
     protected function isHttp($e)
     {
         return $e instanceof NotFoundHttpException;
+    }
+
+    protected function isAuth($e)
+    {
+        return $e instanceof AuthenticationException;
     }
 
     protected function ModelResponse()
@@ -46,6 +57,13 @@ trait ExceptionTrait
         return response()->json(
             ['errors' => 'Route not found'],
             Response::HTTP_NOT_FOUND);
+    }
+
+    protected function AuthResponse()
+    {
+        return response()->json(
+            ['errors' => 'User is unauthenticated'],
+            Response::HTTP_FORBIDDEN);
     }
 
 }

@@ -5,7 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Resources\Comment\CommentResource;
 use App\Model\Comment;
 use App\Model\Review;
-use Illuminate\Http\Request;
+use App\Http\Requests\CommentRequest;
+use App\Model\Role;
+use App\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Response;
+use Illuminate\Validation\Validator;
 
 class CommentController extends Controller
 {
@@ -32,18 +37,32 @@ class CommentController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CommentRequest $request, Review $review)
     {
-        //
+        $isAdmin = Role::where('name', 'admin')->first()->id;
+        $role = Auth::user()->role_id;
+
+        if ($role !== $isAdmin) {
+            return response(['errors' => 'User isn\'t admin'], Response::HTTP_FORBIDDEN);
+        }
+        $comment = new Comment($request->all());
+        $review->comments()->save($comment);
+
+        return response()->json([
+            'data' => new CommentResource($comment)
+        ], Response::HTTP_CREATED);
+
+
+        $comment->save();
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Model\Comment  $comment
+     * @param  \App\Model\Comment $comment
      * @return \Illuminate\Http\Response
      */
     public function show(Review $review)
@@ -51,33 +70,11 @@ class CommentController extends Controller
         return new CommentResource($review);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Model\Comment  $comment
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Comment $comment)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Model\Comment  $comment
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Comment $comment)
-    {
-        //
-    }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Model\Comment  $comment
+     * @param  \App\Model\Comment $comment
      * @return \Illuminate\Http\Response
      */
     public function destroy(Comment $comment)
