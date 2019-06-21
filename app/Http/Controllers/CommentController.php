@@ -51,12 +51,9 @@ class CommentController extends Controller
         $comment = new Comment($request->all());
         $review->comments()->save($comment);
 
-        return response()->json([
+        return response([
             'data' => new CommentResource($comment)
         ], Response::HTTP_CREATED);
-
-
-        $comment->save();
     }
 
     /**
