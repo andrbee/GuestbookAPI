@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewReviewEvent;
 use App\Http\Requests\ReviewRequest;
 use App\Http\Resources\Review\ReviewCollection;
 use App\Http\Resources\Review\ReviewResource;
@@ -18,7 +19,7 @@ class ReviewController extends Controller
      */
     public function index()
     {
-        return ReviewCollection::collection(Review::paginate(3));
+        return ReviewCollection::collection(Review::paginate(10));
     }
 
     /**
@@ -44,7 +45,7 @@ class ReviewController extends Controller
         $review->description = $request->description;
         $review->user_id = Auth::user()->id;
         $review->save();
-
+        event(new NewReviewEvent(new ReviewResource($review)));
         return response([
             'data' => new ReviewResource($review)
         ],Response::HTTP_CREATED);

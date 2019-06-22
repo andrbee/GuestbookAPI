@@ -15,11 +15,7 @@ class CommentResource extends JsonResource
     public function toArray($request)
     {
         return [
-//            'author' => $this->name,
             'text' => $this->review,
-            'href' => [
-                'link' => route('reviews.show', $this->review_id)
-            ]
         ];
     }
 }

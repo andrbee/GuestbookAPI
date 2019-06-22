@@ -5,6 +5,7 @@ namespace App\Http\Resources\Review;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Model\User;
 use App\Model\Role;
+use App\Http\Resources\Comment\CommentResource;
 
 class ReviewResource extends JsonResource
 {
@@ -26,7 +27,9 @@ class ReviewResource extends JsonResource
             ],
             'href' => [
                 'comments' => route('comments.index', $this->id)
-            ]
+            ],
+            'count_comments' => $this->comments->count(),
+            'comments' => CommentResource::collection($this->comments)
         ];
     }
 }

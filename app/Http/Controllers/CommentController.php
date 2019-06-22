@@ -11,6 +11,7 @@ use App\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Validator;
+use App\Events\NewCommentEvent;
 
 class CommentController extends Controller
 {
@@ -50,6 +51,8 @@ class CommentController extends Controller
         }
         $comment = new Comment($request->all());
         $review->comments()->save($comment);
+
+        event(new NewCommentEvent(new CommentResource($comment), $review->user_id));
 
         return response([
             'data' => new CommentResource($comment)

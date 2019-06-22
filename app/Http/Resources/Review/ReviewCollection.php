@@ -5,6 +5,7 @@ namespace App\Http\Resources\Review;
 use Illuminate\Http\Resources\Json\Resource;
 use App\Model\User;
 use App\Model\Role;
+use App\Http\Resources\Comment\CommentResource;
 
 class ReviewCollection extends Resource
 {
@@ -23,10 +24,11 @@ class ReviewCollection extends Resource
                 'name' => $user->name,
                 'role' => Role::where('id', $user->role_id)->first()->name,
             ],
-            'count_comments' => $this->comments->count(),
             'href' => [
-                'link' => route('reviews.show', $this->id)
-            ]
+                'comments' => route('comments.index', $this->id)
+            ],
+            'count_comments' => $this->comments->count(),
+            'comments' => CommentResource::collection($this->comments)
         ];
     }
 }
